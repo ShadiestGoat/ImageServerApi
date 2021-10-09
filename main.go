@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"log"
@@ -35,11 +37,23 @@ func setupSubmittionCache(db *mongo.Database, ctx context.Context) {
 	}
 
 	for cur.Next(ctx) {
-		var res models.Submition
-		err := cur.Decode(&res)
+		var b bytes.Buffer
+		gz, err := gzip.NewWriterLevel(&b, 9)
 		if err != nil {
 			log.Fatal(err)
 		}
+		var res models.Submition
+		err = cur.Decode(&res)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if _, err := gz.Write([]byte(res.Content)); err != nil {
+			log.Fatal(err)
+		}	
+		if err := gz.Close(); err != nil {
+			log.Fatal(err)
+		}
+		res.Content = b.String()
 		submittionCache[res.Id] = res
 	}
 	// fmt.Printf("%#v\n", res.Content)
@@ -83,7 +97,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 
 	err = client.Connect(ctx)
 	defer cancel()
@@ -100,9 +114,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(compress.New(compress.Config{
-		Level: 3,
-	}))
+	app.Use(compress.New())
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
@@ -118,6 +130,10 @@ func main() {
 		item, ok := submittionCache[id]
 		fmt.Println(id)
 		if !ok {return c.SendStatus(404)}
+		format := "webp"
+		if item.Gif {format = "gif"}
+		c.Type(format)
+		c.Set("Content-Encoding", "gzip")
 		return c.SendString(item.Content)
 	})
 
