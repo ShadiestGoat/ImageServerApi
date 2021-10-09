@@ -72,8 +72,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
-	const PORT = "3000"
-
+	PORT := os.Getenv("PORT")
+	if (len(PORT) == 0) {
+		PORT = "3000"
+	}
 	// Time to setup cache & mongodb
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUrl()))
