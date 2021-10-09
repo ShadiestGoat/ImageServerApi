@@ -127,9 +127,9 @@ func main() {
 			id = splited[0]
 		}
 		item, ok := submittionCache[id]
-		// format := ".webp"
+		format := ".webp"
 		if !ok {return c.SendStatus(404)}
-		// if item.Gif {format = ".gif"}
+		if item.Gif {format = ".gif"}
 		c.Type("html")
 		return c.SendString(`<!DOCTYPE html>
 <html lang="en">
@@ -137,11 +137,11 @@ func main() {
 <title> Sick ass epic image server </title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta property="og:title" content="Shady's image server" />
-<meta property="og:image" content="/rawi/` + id + `" />
+<meta property="og:image" content="/rawi/` + id + format + `" />
 <meta property="og:url" content="/i/` + id + `" />
 <meta property="og:description" content="Forcefully shoved onto this by ` + userCache[item.Author].Username + " on " + time.UnixMilli(item.Timestamp).String() + `" />
 <meta property="twitter:title" content="Shady's image server" />
-<meta property="twitter:image" content="/rawi/` + id + `" />
+<meta property="twitter:image" content="/rawi/` + id + format + `" />
 <meta name="theme-color" content="#5655b0">
 <meta name="twitter:card" content="summary_large_image">
 <style>
@@ -153,7 +153,7 @@ func main() {
 	margin: 0 !important;
 }
 </style></head>
-<body><img style="height: 100vh; margin: 0 auto !important; display: block;" src="/rawi/` + id +`" /></body>`)
+<body><img style="height: 100vh; margin: 0 auto !important; display: block;" src="/rawi/` + id + format +`" /></body>`)
 	})
 
 	app.Listen(":" + PORT)
