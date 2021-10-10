@@ -12,7 +12,7 @@ import (
 	"github.com/ShadiestGoat/ImageServerApi/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/cache"
+	// "github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -117,14 +117,18 @@ func main() {
 		AppName: "Image Server",
 	})
 
-	app.Use(cache.New())
+	// app.Use(cache.New())
 
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
 
-	app.Use(etag.New())
-	
+	app.Use(etag.New(etag.Config{
+		Weak: false,
+		Next: func(c *fiber.Ctx) bool {return false},
+	}))
+
+
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
