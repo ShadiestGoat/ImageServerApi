@@ -150,6 +150,7 @@ func main() {
 		format := "webp"
 		if item.Gif {format = "gif"}
 		c.Type(format)
+		c.Set("Content-Encoding", "gzip")
 		return c.SendString(item.Content)
 	})
 
