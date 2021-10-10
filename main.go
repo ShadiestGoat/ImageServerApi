@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"compress/gzip"
+	// "bytes"
+	// "compress/gzip"
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/ShadiestGoat/ImageServerApi/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,8 +37,8 @@ func setupSubmittionCache(db *mongo.Database, ctx context.Context) {
 	}
 
 	for cur.Next(ctx) {
-		var b bytes.Buffer
-		gz, err := gzip.NewWriterLevel(&b, 9)
+		// var b bytes.Buffer
+		// gz, err := gzip.NewWriterLevel(&b, gzip.BestCompression)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -47,13 +47,13 @@ func setupSubmittionCache(db *mongo.Database, ctx context.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if _, err := gz.Write([]byte(res.Content)); err != nil {
-			log.Fatal(err)
-		}	
-		if err := gz.Close(); err != nil {
-			log.Fatal(err)
-		}
-		res.Content = b.String()
+		// if _, err := gz.Write([]byte(res.Content)); err != nil {
+		// 	log.Fatal(err)
+		// }	
+		// if err := gz.Close(); err != nil {
+		// 	log.Fatal(err)
+		// }
+		// res.Content = b.String()
 		submittionCache[res.Id] = res
 	}
 	// fmt.Printf("%#v\n", res.Content)
@@ -111,10 +111,16 @@ func main() {
 
 	setupSubmittionCache(db, ctx)
 	setupUserCache(db, ctx)
+	
+	app := fiber.New(fiber.Config{
+		AppName: "Image Server",
+	})
 
-	app := fiber.New()
+	app.Use(cache.New())
 
-	app.Use(compress.New())
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
+	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
@@ -128,12 +134,10 @@ func main() {
 			id = splited[0]
 		}
 		item, ok := submittionCache[id]
-		fmt.Println(id)
 		if !ok {return c.SendStatus(404)}
 		format := "webp"
 		if item.Gif {format = "gif"}
 		c.Type(format)
-		c.Set("Content-Encoding", "gzip")
 		return c.SendString(item.Content)
 	})
 
