@@ -183,7 +183,7 @@ func main() {
 	margin: 0 !important;
 }
 </style></head>
-<body><img style="height: 100vh; margin: 0 auto !important; display: block;" src="/rawi/` + id + format +`" /></body>`)
+<body><img style="height: 100vh; margin: 0 auto !important; display: block;" src="https://ssltest.shadygoat.eu/rawi/` + id + format +`" /></body>`)
 	})
 
 	app.Listen(":" + PORT)
