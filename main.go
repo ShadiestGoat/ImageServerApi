@@ -6,7 +6,7 @@ import (
 	"context"
 	"log"
 	"os"
-	"strings"
+	// "strings"
 	"time"
 
 	"github.com/ShadiestGoat/ImageServerApi/models"
@@ -135,12 +135,12 @@ func main() {
 	})
 
 	app.Get("/rawi/:id", func(c *fiber.Ctx) error {
-		paramId := c.Params("id")
-		splited := strings.Split(paramId, ".")
-		id := strings.Join(splited[:(len(splited)-1)], ".")
-		if len(splited) == 1 {
-			id = splited[0]
-		}
+		id := c.Params("id")
+		// splited := strings.Split(paramId, ".")
+		// id := strings.Join(splited[:(len(splited)-1)], ".")
+		// if len(splited) == 1 {
+		// 	id = splited[0]
+		// }
 		item, ok := submittionCache[id]
 		if !ok {return c.SendStatus(404)}
 		format := "webp"
@@ -150,40 +150,27 @@ func main() {
 	})
 
 	app.Get("/i/:id", func(c *fiber.Ctx) error {
-		paramId := c.Params("id")
-		splited := strings.Split(paramId, ".")
-		id := strings.Join(splited[:(len(splited)-1)], ".")
-		if len(splited) == 1 {
-			id = splited[0]
-		}
+		id := c.Params("id")
+		// splited := strings.Split(paramId, ".")
+		// id := strings.Join(splited[:(len(splited)-1)], ".")
+		// if len(splited) == 1 {
+		// 	id = splited[0]
+		// }
 		item, ok := submittionCache[id]
-		format := ".webp"
+		// format := ".webp"
 		if !ok {return c.SendStatus(404)}
-		if item.Gif {format = ".gif"}
+		// if item.Gif {format = ".gif"}
 		c.Type("html")
-		return c.SendString(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<title> Sick ass epic image server </title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta property="og:title" content="Shady's image server" />
-<meta property="og:image" content="/rawi/` + id + format + `" />
+		return c.SendString(`<!DOCTYPE html><html lang="en"><head><title> Shady Image </title><meta name="viewport" content="width=device-width,initial-scale=1"><meta property="og:title" content="Shady Image" />
+<meta property="og:image" content="/rawi/` + id + `" />
 <meta property="og:url" content="/i/` + id + `" />
-<meta property="og:description" content="Forcefully shoved onto this by ` + userCache[item.Author].Username + " on " + time.UnixMilli(item.Timestamp).String() + `" />
-<meta property="twitter:title" content="Shady's image server" />
-<meta property="twitter:image" content="/rawi/` + id + format + `" />
-<meta name="theme-color" content="#5655b0">
-<meta name="twitter:card" content="summary_large_image">
-<style>
-:root {
-	background-color: #202124 !important;
-}
-*, :after, :before {
-	box-sizing: border-box;
-	margin: 0 !important;
-}
-</style></head>
-<body><img style="height: 100vh; margin: 0 auto !important; display: block;" src="https://ssltest.shadygoat.eu/rawi/` + id + format +`" /></body>`)
+<meta property="og:description" content="Shoved onto this by ` + userCache[item.Author].Username + " on " + time.UnixMilli(item.Timestamp).String() + `" />
+<meta property="twitter:title" content="Shady Image" />
+<meta property="twitter:image" content="/rawi/` + id + `" />
+<meta name="theme-color" content="#5655b0"><meta name="twitter:card" content="summary_large_image">
+<style>:root {background-color: #202124;}
+*, :after, :before {box-sizing: border-box;margin: 0 !important;}</style></head>
+<body><img style="height: 100vh; margin: 0 auto; display: block;" src="/rawi/` + id +`" /></body>`)
 	})
 
 	app.Listen(":" + PORT)
