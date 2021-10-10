@@ -9,7 +9,6 @@ import (
 	"time"
 	"github.com/ShadiestGoat/ImageServerApi/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -114,7 +113,7 @@ func main() {
 		AppName: "Image Server",
 	})
 
-	app.Use(cache.New())
+	// app.Use(cache.New())
 
 	// app.Use(compress.New(compress.Config{
 	// 	Level: compress.LevelBestSpeed,
@@ -133,11 +132,6 @@ func main() {
 
 	app.Get("/rawi/:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")
-		// splited := strings.Split(paramId, ".")
-		// id := strings.Join(splited[:(len(splited)-1)], ".")
-		// if len(splited) == 1 {
-		// 	id = splited[0]
-		// }
 		item, ok := submittionCache[id]
 		if !ok {return c.SendStatus(404)}
 		format := "webp"
@@ -149,15 +143,8 @@ func main() {
 
 	app.Get("/i/:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")
-		// splited := strings.Split(paramId, ".")
-		// id := strings.Join(splited[:(len(splited)-1)], ".")
-		// if len(splited) == 1 {
-		// 	id = splited[0]
-		// }
 		item, ok := submittionCache[id]
-		// format := ".webp"
 		if !ok {return c.SendStatus(404)}
-		// if item.Gif {format = ".gif"}
 		c.Type("html")
 		return c.SendString(`<!DOCTYPE html><html lang="en"><head><title> Shady Image </title><meta name="viewport" content="width=device-width,initial-scale=1"><meta property="og:title" content="Shady Image" />
 <meta property="og:image" content="/rawi/` + id + `" />
@@ -167,8 +154,8 @@ func main() {
 <meta property="twitter:image" content="/rawi/` + id + `" />
 <meta name="theme-color" content="#5655b0"><meta name="twitter:card" content="summary_large_image">
 <style>:root {background-color: #202124;}
-*, :after, :before {box-sizing: border-box;margin: 0 !important;}</style></head>
-<body><img style="height: 100vh; margin: 0 auto; display: block;" src="/rawi/` + id +`" /></body>`)
+*, :after, :before {box-sizing: border-box;margin: 0 auto;}</style></head>
+<body><img style="height: 100vh; display: block;" src="/rawi/` + id +`" /></body>`)
 	})
 
 	app.Listen(":" + PORT)
