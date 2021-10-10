@@ -1,22 +1,15 @@
 package main
 
 import (
-	// "bytes"
-	// "compress/gzip"
 	"bytes"
 	"compress/gzip"
 	"context"
 	"log"
 	"os"
-
-	// "strings"
 	"time"
-
 	"github.com/ShadiestGoat/ImageServerApi/models"
 	"github.com/gofiber/fiber/v2"
-
-	// "github.com/gofiber/fiber/v2/middleware/compress"
-	// "github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -121,7 +114,7 @@ func main() {
 		AppName: "Image Server",
 	})
 
-	// app.Use(cache.New())
+	app.Use(cache.New())
 
 	// app.Use(compress.New(compress.Config{
 	// 	Level: compress.LevelBestSpeed,
