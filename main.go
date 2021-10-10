@@ -3,15 +3,19 @@ package main
 import (
 	// "bytes"
 	// "compress/gzip"
+	"bytes"
+	"compress/gzip"
 	"context"
 	"log"
 	"os"
+
 	// "strings"
 	"time"
 
 	"github.com/ShadiestGoat/ImageServerApi/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
+
+	// "github.com/gofiber/fiber/v2/middleware/compress"
 	// "github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/joho/godotenv"
@@ -38,8 +42,8 @@ func setupSubmittionCache(db *mongo.Database, ctx context.Context) {
 	}
 
 	for cur.Next(ctx) {
-		// var b bytes.Buffer
-		// gz, err := gzip.NewWriterLevel(&b, gzip.BestCompression)
+		var b bytes.Buffer
+		gz, err := gzip.NewWriterLevel(&b, gzip.BestCompression)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -48,13 +52,13 @@ func setupSubmittionCache(db *mongo.Database, ctx context.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		// if _, err := gz.Write([]byte(res.Content)); err != nil {
-		// 	log.Fatal(err)
-		// }	
-		// if err := gz.Close(); err != nil {
-		// 	log.Fatal(err)
-		// }
-		// res.Content = b.String()
+		if _, err := gz.Write([]byte(res.Content)); err != nil {
+			log.Fatal(err)
+		}	
+		if err := gz.Close(); err != nil {
+			log.Fatal(err)
+		}
+		res.Content = b.String()
 		submittionCache[res.Id] = res
 	}
 	// fmt.Printf("%#v\n", res.Content)
@@ -119,9 +123,9 @@ func main() {
 
 	// app.Use(cache.New())
 
-	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestSpeed,
-	}))
+	// app.Use(compress.New(compress.Config{
+	// 	Level: compress.LevelBestSpeed,
+	// }))
 
 	app.Use(etag.New(etag.Config{
 		Weak: false,
